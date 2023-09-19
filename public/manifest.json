@@ -1,0 +1,15 @@
+{
+  "name": "War Chest Essentials",
+  "description": "A helpful tool which displays useful in-time information about game",
+  "version": "0.1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "War Chest Essentials"
+  },
+  "icons": {
+     "16": "images/warchest_16.png",
+     "48": "images/warchest_48.png",
+     "128": "images/warchest_128.png"
+  }
+}
