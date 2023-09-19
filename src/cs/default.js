@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom/client';
 import './popup.css';
 import App from "../components/App/App";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const rootInjector = document.body;
+
+const root = ReactDOM.createRoot(rootInjector);
 root.render(
   <React.StrictMode>
     <App />
