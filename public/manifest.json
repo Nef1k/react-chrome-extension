@@ -3,8 +3,9 @@
   "description": "A helpful tool which displays useful in-time information about game",
   "version": "0.1.0",
   "manifest_version": 3,
+  "options_page": "options.html",
   "action": {
-    "default_popup": "index.html",
+    "default_popup": "popup.html",
     "default_title": "War Chest Essentials"
   },
   "icons": {
