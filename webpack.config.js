@@ -1,28 +1,19 @@
 const path = require('path');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const ChromeExtManifesto = require("./wp/plugins/chromeExtManifesto");
+const utils = require("./wp/utils");
+const extension = require("./extenstion.config");
 
-let settings = {
-  optionsEntry: "src/options.js",
-  popupEntry: "src/popup.js",
-  serviceWorkerEntry: "src/serviceWorker.js",
 
-  optionsHtml: "public/options.html",
-  popupHtml: "public/popup.html",
+const pathsSettings = {
+  optionsEntryAbs: path.resolve(__dirname, extension.paths.optionsEntry),
+  popupEntryAbs: path.resolve(__dirname, extension.paths.popupEntry),
+  serviceWorkerAbs: path.resolve(__dirname, extension.paths.serviceWorkerEntry),
 
-  distDirName: "dist",
-}
+  optionsHtmlAbs: path.resolve(__dirname, extension.paths.optionsHtml),
+  popupHtmlAbs: path.resolve(__dirname, extension.paths.popupHtml),
 
-settings = {
-  ...settings,
-
-  optionsEntryAbs: path.resolve(__dirname, settings.optionsEntry),
-  popupEntryAbs: path.resolve(__dirname, settings.popupEntry),
-  serviceWorkerAbs: path.resolve(__dirname, settings.serviceWorkerEntry),
-
-  optionsHtmlAbs: path.resolve(__dirname, settings.optionsHtml),
-  popupHtmlAbs: path.resolve(__dirname, settings.popupHtml),
-
-  distDirAbs: path.resolve(__dirname, settings.distDirName),
+  distDirAbs: path.resolve(__dirname, extension.paths.distDirName),
 }
 
 const _exports = function (_env, argv) {
@@ -35,23 +26,31 @@ const _exports = function (_env, argv) {
   return {
     devtool: isDevelopment && "cheap-module-source-map",
     entry: {
-      popup: settings.popupEntryAbs,
-      options: settings.optionsEntryAbs,
-      serviceWorker: settings.serviceWorkerAbs,
+      popup: pathsSettings.popupEntryAbs,
+      options: pathsSettings.optionsEntryAbs,
+      serviceWorker: pathsSettings.serviceWorkerAbs,
+
+      // Content scripts
+      ...utils.entriesFromContentScripts(extension.contentScripts),
     },
     output: {
-      path: settings.distDirAbs,
-      filename: "assets/js/[name].[contenthash:8].js",
+      path: pathsSettings.distDirAbs,
+      filename: (pathData) => {
+        if (utils.isContentScript(pathData.runtime, extension.contentScripts)) {
+          return `assets/contentScripts/[name].[contenthash:8].js`
+        }
+        return `assets/js/[name].[contenthash:8].js`
+      },
       publicPath: "/",
     },
     module: {
       rules: [
-        {
-          enforce: "pre",
-          exclude: /@babel(?:\/|\\{1,2})runtime/,
-          test: /\.(js|mjs|jsx|ts|tsx|css)$/,
-          loader: require.resolve('source-map-loader'),
-        },
+        // {
+        //   enforce: "pre",
+        //   exclude: /@babel(?:\/|\\{1,2})runtime/,
+        //   test: /\.(js|mjs|jsx|ts|tsx|css)$/,
+        //   loader: require.resolve('source-map-loader'),
+        // },
         {
           oneOf: [
             {
@@ -105,8 +104,8 @@ const _exports = function (_env, argv) {
             from: path.resolve(__dirname, "public"),
             globOptions: {
               ignore: [
-                settings.optionsHtmlAbs,
-                settings.popupHtmlAbs,
+                pathsSettings.optionsHtmlAbs,
+                pathsSettings.popupHtmlAbs,
               ],
             }
           }
@@ -118,17 +117,21 @@ const _exports = function (_env, argv) {
         chunkFilename: "assets/css/[name].[contenthash:8].chunk.css",
       }),
       new HtmlWebpackPlugin({
-        template: settings.optionsHtmlAbs,
+        template: pathsSettings.optionsHtmlAbs,
         filename: "options.html",
         inject: "body",
         chunks: ["options"],
       }),
       new HtmlWebpackPlugin({
-        template: settings.popupHtmlAbs,
+        template: pathsSettings.popupHtmlAbs,
         filename: "popup.html",
         inject: "body",
         chunks: ["popup"],
-      })
+      }),
+      new ChromeExtManifesto({
+        extensionInfo: extension,
+        minify: false,
+      }),
     ].filter(Boolean),
   }
 }

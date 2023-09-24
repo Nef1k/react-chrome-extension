@@ -1,10 +1,25 @@
 import s from './Popup.module.css';
+import {useEffect, useState} from "react";
 
 const Popup = () => {
+  const [value, setValue] = useState("");
+
+  async function loadValue() {
+    const newValue = await chrome.storage.local.get("value");
+    setValue(newValue?.value || "");
+  }
+
+  useEffect(() => {
+    chrome.storage.local.onChanged.addListener(() => {
+      loadValue().catch();
+    })
+
+    loadValue().catch();
+  }, []);
+
   return (
     <div className={s.wrapper}>
-      <h1>This is a root component of popup page</h1>
-      <p>Have fun!</p>
+      Current value: <b>{value}</b>
     </div>
   );
 }

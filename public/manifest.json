@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "manifest_version": 3,
   "options_page": "options.html",
+  "permissions": [
+    "storage"
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_title": "War Chest Essentials"
